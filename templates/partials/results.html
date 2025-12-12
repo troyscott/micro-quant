@@ -1,0 +1,104 @@
+{% for stock in results %}
+<tr class="border-b border-gray-700 hover:bg-gray-750 transition duration-150 group">
+    
+    <td class="p-4 align-top">
+        <div class="font-bold text-lg text-blue-300">{{ stock.ticker }}</div>
+        <div class="text-xs text-gray-400 font-mono">${{ stock.price }}</div>
+        <div class="text-[10px] text-gray-500 mt-1">{{ stock.trend }}</div>
+    </td>
+
+    {% if stock.error %}
+        <td colspan="4" class="p-4 align-middle text-red-400 italic">
+            {{ stock.reason }} <span class="text-xs text-gray-500">({{ stock.error }})</span>
+        </td>
+    {% else %}
+        
+        <td class="p-4 align-top">
+            {% if stock.signal == "STRONG BUY" %}
+                <span class="bg-green-600 text-white text-[10px] px-2 py-1 rounded shadow-lg font-bold animate-pulse">STRONG BUY</span>
+            {% elif stock.signal == "BUY SIGNAL" %}
+                <span class="bg-green-900 text-green-200 text-[10px] px-2 py-1 rounded border border-green-700 font-bold">BUY SIGNAL</span>
+            {% elif stock.signal == "WATCHLIST" %}
+                <span class="bg-yellow-700 text-yellow-100 text-[10px] px-2 py-1 rounded border border-yellow-600 font-bold">WATCHLIST</span>
+            {% elif stock.signal == "AVOID" %}
+                <span class="bg-red-900 text-red-200 text-[10px] px-2 py-1 rounded border border-red-800 font-bold">AVOID</span>
+            {% else %}
+                <span class="text-gray-500 text-[10px] font-bold">WAIT</span>
+            {% endif %}
+            <div class="text-xs text-gray-400 mt-2 leading-snug">{{ stock.reason }}</div>
+        </td>
+
+        <td class="p-4 align-top text-xs">
+            <div class="flex flex-col gap-2">
+                
+                <div class="flex justify-between">
+                    <span class="text-gray-500">RSI:</span>
+                    <span class="font-bold {% if stock.rsi < 40 %}text-green-400{% else %}text-gray-300{% endif %}">{{ stock.rsi }}</span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-500">ADX:</span>
+                    <span class="font-bold font-mono 
+                        {% if stock.adx > 25 %}text-green-400
+                        {% elif stock.adx < 20 %}text-red-400
+                        {% else %}text-gray-400{% endif %}">
+                        {{ stock.adx }}
+                    </span>
+                </div>
+
+                <div class="flex justify-between">
+                    <span class="text-gray-500">MACD:</span>
+                    <span class="font-mono {% if stock.macd > stock.macd_signal %}text-green-300{% else %}text-red-300{% endif %}">
+                        {{ stock.macd }}
+                    </span>
+                </div>
+
+                <div class="flex justify-between border-t border-gray-700 pt-1 mt-1">
+                    <span class="text-gray-500">Vol:</span>
+                    <span class="{% if stock.volume > stock.avg_volume %}text-green-500 font-bold{% else %}text-gray-500{% endif %}">
+                        {% if stock.volume > stock.avg_volume %}HIGH{% else %}LOW{% endif %}
+                    </span>
+                </div>
+            </div>
+        </td>
+
+        <td class="p-4 align-top font-mono text-xs border-l border-gray-700 bg-gray-800 bg-opacity-20">
+            {% if stock.signal in ["STRONG BUY", "BUY SIGNAL", "WATCHLIST"] %}
+                <div class="grid grid-cols-2 gap-x-2 gap-y-1">
+                    <span class="text-green-400 text-right">TGT:</span>
+                    <span class="text-gray-200">${{ stock.take_profit }}</span>
+                    
+                    <span class="text-red-400 text-right">STOP:</span>
+                    <span class="text-gray-200">${{ stock.stop_loss }}</span>
+                </div>
+                <div class="mt-2 text-[10px] text-gray-500 text-center">R/R: {{ stock.risk_reward }}</div>
+            {% else %}
+                <span class="text-gray-600 block text-center mt-2">-</span>
+            {% endif %}
+        </td>
+
+        <td class="p-4 align-top font-mono border-l border-gray-600 
+            {% if not stock.affordable and stock.shares_to_buy > 0 %}bg-red-900 bg-opacity-20{% else %}bg-gray-900 bg-opacity-50{% endif %}">
+            
+            {% if stock.signal in ["STRONG BUY", "BUY SIGNAL", "WATCHLIST"] and stock.shares_to_buy > 0 %}
+                
+                {% if stock.affordable %}
+                    <div class="text-xl font-bold text-white mb-1">{{ stock.shares_to_buy }} <span class="text-xs text-gray-500 font-normal">shares</span></div>
+                    <div class="text-xs text-green-400">Cost: ${{ "{:,}".format(stock.position_cost) }}</div>
+                    <div class="text-[10px] text-gray-500 mt-1">Risk: ${{ stock.actual_risk }}</div>
+                
+                {% else %}
+                    <div class="text-xl font-bold text-red-400 mb-1">{{ stock.shares_to_buy }} <span class="text-xs text-gray-500 font-normal">shares</span></div>
+                    <div class="text-xs text-red-300 font-bold">Cost: ${{ "{:,}".format(stock.position_cost) }}</div>
+                    <div class="text-[10px] text-red-400 mt-1 uppercase font-bold">Insufficient Funds</div>
+                
+                {% endif %}
+
+            {% else %}
+                <span class="text-gray-700 text-xs block text-center mt-2">No Entry</span>
+            {% endif %}
+        </td>
+
+    {% endif %}
+</tr>
+{% endfor %}

@@ -1,0 +1,30 @@
+# --- Python General ---
+__pycache__/
+*.py[cod]
+*$py.class
+
+# --- Virtual Environments ---
+# It's standard to name venvs 'venv' or 'env'
+venv/
+env/
+.venv/
+
+# --- Database (CRITICAL) ---
+# Ignore the local SQLite DB so you don't publish your
+# personal account balance or settings.
+*.db
+*.sqlite3
+scanner.db
+
+# --- Environment Variables & Secrets ---
+# Keep your API keys (Alpaca, etc) out of the repo
+.env
+.env.local
+
+# --- IDE Settings ---
+.vscode/
+.idea/
+
+# --- OS Junk ---
+.DS_Store
+Thumbs.db
